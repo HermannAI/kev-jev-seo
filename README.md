@@ -2,7 +2,7 @@
 
 An MCP server exposing twelve SEO judgment tools built on [Jev](https://typesafe.ai) (TypeSafe's "System One" model). Raw HTTP to `POST /v1/systemone`, no vendor SDK.
 
-Jev doesn't generate text. It takes state plus a typed question (Choice, Score, or Noul) and returns a calibrated probability. This server uses that to judge real SEO problems — thin content, cannibalisation, meta/title accuracy, internal link placement, vague link text, schema-vs-content mismatches, citation validity, voice drift, and more — while leaving counting, thresholds and any generated text to code and to whatever agent is calling the tool.
+Jev doesn't generate text. It takes state plus a typed question (Choice, Score, or Noul) and returns a calibrated probability. This server uses that to judge real SEO problems (thin content, cannibalisation, meta/title accuracy, internal link placement, vague link text, schema-vs-content mismatches, citation validity, voice drift, and more), while leaving counting, thresholds and any generated text to code and to whatever agent is calling the tool.
 
 Every rubric here was tested against known answers (hand-labelled real content, controlled fault injection, and external ground truth we don't control: real search rankings, an external intent classifier, real JSON-LD schema) before shipping, across thirteen rounds and roughly 2,000+ scored test cases on a mix of our own sites and public sites. See "Benchmarks" below for the numbers behind each tool, and the thresholds each is calibrated to.
 
@@ -31,21 +31,21 @@ Every rubric here was tested against known answers (hand-labelled real content, 
 
 All rubrics and thresholds are in `src/questions.ts`. Jev judges only; counts, lengths and maths are done in code, and any generated text comes from whatever agent is calling the tool, not from Jev.
 
-The model is pinned to `jev-1.13.0` (`PINNED_MODEL` in `src/client.ts`, overridable with `TYPESAFE_DEFAULT_MODEL`). If you move to a newer Jev, rerun your own evaluation against it first, then change the pin — the thresholds in `questions.ts` were measured against this specific model version and are not guaranteed to hold on a different one.
+The model is pinned to `jev-1.13.0` (`PINNED_MODEL` in `src/client.ts`, overridable with `TYPESAFE_DEFAULT_MODEL`). If you move to a newer Jev, rerun your own evaluation against it first, then change the pin. The thresholds in `questions.ts` were measured against this specific model version and are not guaranteed to hold on a different one.
 
 ## Benchmarks
 
 Headline numbers from evaluation against a mix of internal test sites and eight public sites nobody tuned against (spanning editorial, UX research, SaaS marketing, e-commerce, and other categories):
 
-- **Internal link placement & anchor scoring** — 95-96% approvable across four site corpora on blind holdout rows (99 rows total), 70% rated genuinely good.
-- **Anchor-suggestion from scratch** — finds 71-87% of the links a real editor placed, under 2% wrong-target accepts.
-- **Meta description checks** — 100% detection of injected wrong-page, generic, and stuffed descriptions; 90-100% on fresh false-claim types never used in tuning.
-- **Title checks** — wrong-page, stuffed, and blatant over-promise catch at 98-100% with full page text supplied; subtle over-promise at 79-94% depending on site.
-- **Heading quality** — AUC 0.96-0.99 against gold lists, including non-English content.
-- **Search intent** — 93% lenient agreement with hand labels; documented bias toward under-calling commercial pages as informational (confirmed independently against an external intent classifier).
-- **Thin-content scoring** — AUC 0.91-1.00 catching truncated content, under 3% false-flag rate on complete pages.
-- **Schema-vs-content mismatch** — FAQ and Product checks validated against real JSON-LD (AUC 0.95-0.98); Review still unproven.
-- **Cannibalisation** — AUC 0.94-0.98; checked against real ranking data from a live keyword API across eight sites, confirmed genuinely rare on sites with reasonable SEO already. Shipped as a triage step, not an auto-merge decision.
+- **Internal link placement & anchor scoring**: 95-96% approvable across four site corpora on blind holdout rows (99 rows total), 70% rated genuinely good.
+- **Anchor-suggestion from scratch**: finds 71-87% of the links a real editor placed, under 2% wrong-target accepts.
+- **Meta description checks**: 100% detection of injected wrong-page, generic, and stuffed descriptions; 90-100% on fresh false-claim types never used in tuning.
+- **Title checks**: wrong-page, stuffed, and blatant over-promise catch at 98-100% with full page text supplied; subtle over-promise at 79-94% depending on site.
+- **Heading quality**: AUC 0.96-0.99 against gold lists, including non-English content.
+- **Search intent**: 93% lenient agreement with hand labels; documented bias toward under-calling commercial pages as informational (confirmed independently against an external intent classifier).
+- **Thin-content scoring**: AUC 0.91-1.00 catching truncated content, under 3% false-flag rate on complete pages.
+- **Schema-vs-content mismatch**: FAQ and Product checks validated against real JSON-LD (AUC 0.95-0.98); Review still unproven.
+- **Cannibalisation**: AUC 0.94-0.98; checked against real ranking data from a live keyword API across eight sites, confirmed genuinely rare on sites with reasonable SEO already. Shipped as a triage step, not an auto-merge decision.
 
 A few things that were tested and *didn't* ship: claim-level fact-checking for meta descriptions (no gain over the holistic check), and an earlier citation-validity rubric that conflated "does this support a claim" with "is this genuinely who it's credited to" (fixed by splitting into two question types).
 
