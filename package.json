@@ -1,0 +1,28 @@
+{
+  "name": "kev-jev-seo",
+  "version": "0.7.0",
+  "description": "MCP server: twelve SEO judgment tools built on the Jev (TypeSafe) System One model. Raw HTTP, no vendor SDK.",
+  "type": "module",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HermannAI/kev-jev-seo.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "smoke": "node smoke-test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.9"
+  }
+}
